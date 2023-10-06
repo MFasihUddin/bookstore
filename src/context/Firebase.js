@@ -28,7 +28,7 @@ const firebaseAuth = getAuth(firebaseApp);
 
 const FirebaseProvider = ({ children }) => {
   //authentication
-  const signUp = (email, password) => {
+  const register = (email, password) => {
     createUserWithEmailAndPassword(firebaseAuth, email, password);
   };
   const signinWithGoggle = () => {
@@ -43,7 +43,7 @@ const FirebaseProvider = ({ children }) => {
 
   return (
     <FirebaseContext.Provider
-      value={{ signUp, signIn, firebaseAuth, signinWithGoggle }}
+      value={{ register, signIn, firebaseAuth, signinWithGoggle }}
     >
       {children}
     </FirebaseContext.Provider>
