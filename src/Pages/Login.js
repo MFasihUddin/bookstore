@@ -1,17 +1,24 @@
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import { useState } from "react";
 import { useFirebase } from "../context/Firebase";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { signIn, signinWithGoggle } = useFirebase();
+  const { signIn, signinWithGoggle, isLoggedIn } = useFirebase();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     await signIn(email, password);
   };
+
+  useEffect(() => {
+    //navigate to home
+    if (isLoggedIn) navigate("/");
+  }, [isLoggedIn, navigate]);
 
   return (
     <div className="container mt-5">
