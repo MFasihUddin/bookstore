@@ -8,6 +8,8 @@ import {
   signInWithPopup,
   onAuthStateChanged,
 } from "firebase/auth";
+import { getFirestore, addDoc, collection } from "firebase/firestore";
+import { getStorage, ref, uploadBytes } from "firebase/storage";
 
 const FirebaseContext = createContext();
 
@@ -25,6 +27,8 @@ const firebaseConfig = {
 
 const firebaseApp = initializeApp(firebaseConfig);
 const firebaseAuth = getAuth(firebaseApp);
+const firestore = getFirestore(firebaseApp);
+const storage = getStorage(firebaseApp);
 //...
 
 const FirebaseProvider = ({ children }) => {
@@ -41,19 +45,43 @@ const FirebaseProvider = ({ children }) => {
       .then((res) => console.log("logged in Successfully"))
       .catch((err) => console.log(err));
   };
-
   useEffect(() => {
     onAuthStateChanged(firebaseAuth, (user) => {
       if (user) setUser(user);
       else setUser(null);
     });
   }, []);
-
   const isLoggedIn = user ? true : false;
+
+  //firestore stuff...
+  const handleCreate = async (name, isbnNumber, price, coverPic) => {
+    const imageRef = ref(
+      storage,
+      `uploads/images/${Date.now()}-${coverPic.name}`
+    );
+    const uploadResult = await uploadBytes(imageRef, coverPic);
+    return await addDoc(collection(firestore, "books"), {
+      name,
+      isbnNumber,
+      price,
+      imageURL: uploadResult.ref.fullPath,
+      userID: user.uid,
+      userEmail: user.email,
+      displayName: user.displayName,
+      photoURL: user.photoURL,
+    });
+  };
 
   return (
     <FirebaseContext.Provider
-      value={{ register, signIn, firebaseAuth, signinWithGoggle, isLoggedIn }}
+      value={{
+        register,
+        signIn,
+        firebaseAuth,
+        signinWithGoggle,
+        isLoggedIn,
+        handleCreate,
+      }}
     >
       {children}
     </FirebaseContext.Provider>
