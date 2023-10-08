@@ -8,8 +8,15 @@ import {
   signInWithPopup,
   onAuthStateChanged,
 } from "firebase/auth";
-import { getFirestore, addDoc, collection } from "firebase/firestore";
-import { getStorage, ref, uploadBytes } from "firebase/storage";
+import {
+  getFirestore,
+  addDoc,
+  collection,
+  getDocs,
+  getDoc,
+  doc,
+} from "firebase/firestore";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const FirebaseContext = createContext();
 
@@ -55,11 +62,13 @@ const FirebaseProvider = ({ children }) => {
 
   //firestore stuff...
   const handleCreate = async (name, isbnNumber, price, coverPic) => {
+    //image upload to storage
     const imageRef = ref(
       storage,
       `uploads/images/${Date.now()}-${coverPic.name}`
     );
     const uploadResult = await uploadBytes(imageRef, coverPic);
+    //data upload to firestore with image ref
     return await addDoc(collection(firestore, "books"), {
       name,
       isbnNumber,
@@ -71,6 +80,19 @@ const FirebaseProvider = ({ children }) => {
       photoURL: user.photoURL,
     });
   };
+  const getImageUrl = (path) => {
+    return getDownloadURL(ref(storage, path));
+  };
+  // get docs/data from firestore
+  const allList = () => {
+    return getDocs(collection(firestore, "books"));
+  };
+
+  const getBookById = async (id) => {
+    const docRef = doc(firestore, "books", id);
+    const result = await getDoc(docRef);
+    return result;
+  };
 
   return (
     <FirebaseContext.Provider
@@ -81,6 +103,9 @@ const FirebaseProvider = ({ children }) => {
         signinWithGoggle,
         isLoggedIn,
         handleCreate,
+        allList,
+        getImageUrl,
+        getBookById
       }}
     >
       {children}
