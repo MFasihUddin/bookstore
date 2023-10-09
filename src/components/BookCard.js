@@ -6,8 +6,16 @@ import { useFirebase } from "../context/Firebase";
 import { useNavigate } from "react-router-dom";
 
 function BookCard(props) {
-  const { id, name, isbnNumber, price, imageURL, displayName, userEmail } =
-    props;
+  const {
+    id,
+    name,
+    isbnNumber,
+    price,
+    imageURL,
+    displayName,
+    userEmail,
+    link,
+  } = props;
   const { getImageUrl } = useFirebase();
 
   const navigate = useNavigate();
@@ -27,11 +35,8 @@ function BookCard(props) {
             This Book has a title {name} and this book is sold by {displayName}{" "}
             and this book costs Rs.{price}
           </Card.Text>
-          <Button
-            onClick={(e) => navigate(`book/view/${id}`)}
-            variant="primary"
-          >
-            View
+          <Button onClick={(e) => navigate(link)} variant="primary">
+            Check Order
           </Button>
         </Card.Body>
       </Card>

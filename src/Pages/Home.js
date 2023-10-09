@@ -19,7 +19,11 @@ function Home() {
       <CardGroup>
         {books.map((book) => (
           <React.Fragment key={book.id}>
-            <BookCard id={book.id} {...book.data()} />
+            <BookCard
+              link={`book/view/${book.id}`}
+              id={book.id}
+              {...book.data()}
+            />
           </React.Fragment>
         ))}
       </CardGroup>

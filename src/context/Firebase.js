@@ -15,6 +15,8 @@ import {
   getDocs,
   getDoc,
   doc,
+  query,
+  where,
 } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
@@ -75,8 +77,8 @@ const FirebaseProvider = ({ children }) => {
       price,
       imageURL: uploadResult.ref.fullPath,
       userID: user.uid,
-      userEmail: user.email,
       displayName: user.displayName,
+      userEmail: user.email,
       photoURL: user.photoURL,
     });
   };
@@ -94,6 +96,30 @@ const FirebaseProvider = ({ children }) => {
     return result;
   };
 
+  const placeOrder = async (bookId, qty) => {
+    const collectionRef = collection(firestore, "books", bookId, "orders");
+    const result = await addDoc(collectionRef, {
+      userID: user.uid,
+      userName: user.displayName,
+      userEmail: user.email,
+      photoURL: user.photoURL,
+      qty: Number(qty),
+    });
+    return result;
+  };
+  const fetchMyBooks = async () => {
+    const collectionRef = collection(firestore, "books");
+    const q = query(collectionRef, where("userID", "==", user.uid));
+    const result = await getDocs(q);
+    return result;
+  };
+
+  const getOrders = async (bookId) => {
+    const collectionRef = collection(firestore, "books", bookId, "orders");
+    const result = await getDocs(collectionRef);
+    return result;
+  };
+
   return (
     <FirebaseContext.Provider
       value={{
@@ -105,7 +131,10 @@ const FirebaseProvider = ({ children }) => {
         handleCreate,
         allList,
         getImageUrl,
-        getBookById
+        getBookById,
+        placeOrder,
+        fetchMyBooks,
+        getOrders
       }}
     >
       {children}
